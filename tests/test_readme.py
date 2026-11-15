@@ -214,8 +214,16 @@ class PaseoStartLine(unittest.TestCase):
     def test_readme_and_protocol_give_the_sed_line(self):
         for name in ("README.md", "PROTOCOL.md"):
             with self.subTest(file=name):
-                found = re.search(r"\"\$\(sed '1,/\^<!-- Generated/d' paseo/[^)\n]+\.md\)\nREAD FIRST: [^\"\n]+\"", read(name))
+                found = re.search(r"\"\$\(sed '1,/\^<\.-- Generated/d' paseo/[^)\n]+\.md\)\nREAD FIRST: [^\"\n]+\"", read(name))
                 self.assertTrue(found, f"{name} lacks the $(sed ...) start line")
+
+    def test_the_start_line_holds_no_bang(self):
+        """Interactive bash 3.2 runs history expansion on `!` inside $( ), even between single quotes."""
+        for name in ("README.md", "PROTOCOL.md"):
+            with self.subTest(file=name):
+                m = re.search(r"\"\$\(sed [^\n]*\nREAD FIRST: [^\"\n]+\"", read(name))
+                self.assertTrue(m, f"{name} lacks the start line")
+                self.assertNotIn("!", m.group(0))
 
     def test_the_line_passes_a_body_with_backticks_unchanged(self):
         import os
@@ -229,7 +237,7 @@ class PaseoStartLine(unittest.TestCase):
                 shutil.copy(os.path.join(ROOT, "paseo", f"{role}.md"), os.path.join(tmp, "paseo", f"{role}.md"))
             for role in ROLES:
                 with self.subTest(role=role):
-                    snippet = ('printf "%s" "$(sed \'1,/^<!-- Generated/d\' paseo/' + role + '.md)\n'
+                    snippet = ('printf "%s" "$(sed \'1,/^<.-- Generated/d\' paseo/' + role + '.md)\n'
                                'READ FIRST: handoffs/x.md"')
                     out = subprocess.run(["sh", "-c", snippet], cwd=tmp, capture_output=True, text=True)
                     body = read("paseo", f"{role}.md").split("\n\n", 1)[1].strip("\n")
@@ -237,6 +245,13 @@ class PaseoStartLine(unittest.TestCase):
                     self.assertEqual(out.stderr, "")
                     self.assertEqual(out.stdout.strip("\n"), body + "\nREAD FIRST: handoffs/x.md")
                     self.assertIn("`", out.stdout)
+
+
+class ChiefOfStaffStart(unittest.TestCase):
+    """A Chief of Staff starts with no handoff file, so a global install must name the protocol path in the start line."""
+
+    def test_readme_gives_the_chief_of_staff_start_line(self):
+        self.assertIn('claude --agent chief-of-staff "READ FIRST: <absolute path of PROTOCOL.md>"', read("README.md"))
 
 
 if __name__ == "__main__":

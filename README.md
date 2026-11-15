@@ -60,7 +60,7 @@ cp /path/to/claude-agent-roles/templates/handoff.md handoffs/TEMPLATE.md
 ```
 
 Task Workers run in a worktree, and a worktree holds tracked files only. Commit `PROTOCOL.md`, `.claude/agents/` and `handoffs/` to the project, or the worker will not find them.
-Or install the agents in `$HOME/.claude/agents/` for every project on the machine, keep `PROTOCOL.md` somewhere fixed, and name the absolute path of `PROTOCOL.md` in the handoff file, under Rules.
+Or install the agents in `$HOME/.claude/agents/` for every project on the machine, keep `PROTOCOL.md` somewhere fixed, and name the absolute path of `PROTOCOL.md` in the handoff file, under Rules. Start the Chief of Staff, which has no handoff file, with `claude --agent chief-of-staff "READ FIRST: <absolute path of PROTOCOL.md>"`.
 
 Start a role as its own session:
 
@@ -87,7 +87,7 @@ Public Paseo has no profile folder to copy into. A profile is created in the app
 3. Start the role with the prompt body of that file:
 
 ```sh
-paseo run --provider claude --model claude-sonnet-5-5 --mode auto --thinking high --title "PM · checkout" "$(sed '1,/^<!-- Generated/d' paseo/project-manager.md)
+paseo run --provider claude --model claude-sonnet-5-5 --mode auto --thinking high --title "PM · checkout" "$(sed '1,/^<.-- Generated/d' paseo/project-manager.md)
 READ FIRST: handoffs/checkout-flaky.md"
 ```
 

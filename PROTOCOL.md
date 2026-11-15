@@ -60,7 +60,7 @@ claude --agent <role> "READ FIRST: <path>"
 or, in Paseo (the values come from the role's profile; the `$(sed …)` reads the role body after the generated-file note, and a shell does not run the backticks in it):
 
 ```
-paseo run --provider claude --model <model> --mode <mode> --thinking <level> --title "<name>" "$(sed '1,/^<!-- Generated/d' paseo/<role>.md)
+paseo run --provider claude --model <model> --mode <mode> --thinking <level> --title "<name>" "$(sed '1,/^<.-- Generated/d' paseo/<role>.md)
 READ FIRST: <path>"
 ```
 
